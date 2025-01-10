@@ -1,135 +1,189 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1:3306
--- Generation Time: Jan 09, 2025 at 11:30 AM
--- Server version: 9.1.0
--- PHP Version: 8.3.14
+CREATE HOSPITAL DATABASE(( 
+CREATE TABLE patient_data(
+    patient_ID INT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    date_of_birth DATE,
+    gender VARCHAR,
+    phone_number VARCHAR,
+    next_of_kin VARCHAR,
+    locatio_ID INT(11),
+    date_added DATE,
+    update_date DATE,
+    FOREIGN KEY (location_ID)
+); 
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+CREATE TABLE training(
+    training_ID INT(11),PRIMARY KEY AUTO_INCREMENT
+    user_ID INT(11),
+    training_type VARCHAR(100),
+    training_date DATE,
+    complrtion_status VARCHAR,
+    FOREIGN KEY (user_ID) REFERENCES user(user_ID)
+);
+    
+CREATE TABLE epidiological_data(
+    data_ID INT (11),
+    location_ID INT(11),
+    recorded_date DATE,
+    cases_per_athousand_people INT (11),
+    rainfall INT(11),
+    average_temperature DECIMAL(5,2),
+    update_date DATE
+    added_by INT,
+    FOREIGN KEY(Location_ID) REFERENCES geographical_location(location_ID)
+);
+CREATE TABLE supply_chain(
+    supply_ID INT(11),
+    resources_ID INT(11),
+    facility_ID INT(11),
+    quatity_shipped INT(11),
+    shipment_date DATE,
+    expected_arrival_date DATE,
+    shipped_by INT(11),
+    status VARCHAR(50),
+    update_date DATE,
+    FOREIGN KEY (facility_ID) REFERENCES healthy_facility(facility_ID),
+    FOREIGN KEY (resource_ID) REFERENCES resource (resource_ID)
+);
+CREATE TABLE geographical_location(
+    location_ID INT(11),
+    village VARCHAR(100),
+    parish VARCHAR(100),
+    county VARCHAR(100),
+    region VARCHAR(100),
+    population INT(11),
+    coordinates VARCHAR(100),
+    malaria_risk_level VARCHAR(50),
+    healthy_facility_count INT(11)
+    ITN_coverage DECIMAL(5,2),
+    Reported_cases INT
+);
+CREATE TABLE resources(
+    resource_ID INT(11),
+    facility_ID INT(11),
+    resource_type VARCHAR(50),
+    quality INT(11),
+    last_update_date DATE,
+    description TEXT,
+    date_added DATE,
+    update_date DATE,
+    FOREIGN KEY (facility_ID) REFERENCES resource_type(resource_ID)
+);
+CREATE TABLE treatment(
+    treatment_ID INT(11),
+    treatment_namer VARCHAR(50),
+    treatment_description TEXT,
+    dosage VARCHAR(50),
+    side_effects TEXT,
+    date_added DATE,
+    update_date DATE
+);
+CREATE TABLE visit_record(
+    visit_ID INT(11),
+    patient_ID INT(11),
+    visit_number INT(11),
+    visit_date DATE,
+    date_added DATE,
+    update_date DATE,
+    facility_ID INT(11),
+    FOREIGN KEY (patient_ID, facility_ID) 
+                 
+);
+CREATE TABLE referral(
+    referral_ID INT(11),
+    case_ID INT(11),
+    referred_form INT(11),
+    referred_to INT(11),
+    referral_date DATE,
+    reason TEXT,
+    outcome_ID INT(11),
+    update_date DATE,
+    referred_by INT(11),
+    FOREIGN KEY (case_ID, outcome_ID)
+);
+CREATE TABLE user (
+    user_ID INT(11),PRIMARY KEY ,AUTO_INCREMENT
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    preferred_name VARCHAR(50),
+    role_ID INT (11),
+    username VARCHAR(50),
+    password VARCHAR(50),
+    facility_ID INT(11),
+    FOREIGN KEY (facility_ID, role_ID)
+);
+CREATE TABLE malaria_type(
+    type_ID INT(11),
+    type_name VARCHAR(50),
+    description TEXT,
+    date_added DATE,
+    added_by INT(11),
+    update_date DATE,
+    FOREIGN KEY ()
+);
+CREATE TABLE user_role(
+    role_ID INT(11),
+    role_name VARCHAR(50),
+    role_description TEXT,
+    date_added DATE,
+    update_date DATE,
+    FOREIGN KEY() REFERENCES user(user_ID)
+);
+CREATE TABLE laboratory_test(
+    test_ID INT(11),
+    case_ID INT(11),
+    test_type VARCHAR(50),
+    test_result VARCHAR(50),
+    test_date DATE,
+    technician_ID INT(11),
+    FOREIGN KEY (case_ID, technician_ID) REFERENCES case(case_ID)
+);
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Database: `patient_db`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `laboratory_test`
---
-
-DROP TABLE IF EXISTS `laboratory_test`;
-CREATE TABLE IF NOT EXISTS `laboratory_test` (
-  `Test_ID` int NOT NULL,
-  `Visit_ID` int DEFAULT NULL,
-  `Test_Type` varchar(100) DEFAULT NULL,
-  `Test_Result` text,
-  PRIMARY KEY (`Test_ID`),
-  KEY `Visit_ID` (`Visit_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `patient_data`
---
-
-DROP TABLE IF EXISTS `patient_data`;
-CREATE TABLE IF NOT EXISTS `patient_data` (
-  `Patient_ID` int NOT NULL,
-  `Name` varchar(100) DEFAULT NULL,
-  `Gender` varchar(10) DEFAULT NULL,
-  `Date_of_Birth` date DEFAULT NULL,
-  `Contact_Info` varchar(150) DEFAULT NULL,
-  PRIMARY KEY (`Patient_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `resource`
---
-
-DROP TABLE IF EXISTS `resource`;
-CREATE TABLE IF NOT EXISTS `resource` (
-  `Resource_ID` int NOT NULL,
-  `Resource_Type` varchar(100) DEFAULT NULL,
-  `Availability` int DEFAULT NULL,
-  PRIMARY KEY (`Resource_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `supply_chain`
---
-
-DROP TABLE IF EXISTS `supply_chain`;
-CREATE TABLE IF NOT EXISTS `supply_chain` (
-  `Supply_ID` int NOT NULL,
-  `Item_Name` varchar(100) DEFAULT NULL,
-  `Quantity` int DEFAULT NULL,
-  `Supplier` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`Supply_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `treatment_record`
---
-
-DROP TABLE IF EXISTS `treatment_record`;
-CREATE TABLE IF NOT EXISTS `treatment_record` (
-  `Treatment_ID` int NOT NULL,
-  `Visit_ID` int DEFAULT NULL,
-  `Medication` varchar(100) DEFAULT NULL,
-  `Dosage` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`Treatment_ID`),
-  KEY `Visit_ID` (`Visit_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user_role`
---
-
-DROP TABLE IF EXISTS `user_role`;
-CREATE TABLE IF NOT EXISTS `user_role` (
-  `Role_ID` int NOT NULL,
-  `Role_Name` varchar(100) DEFAULT NULL,
-  `Access_Level` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`Role_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `visit_record`
---
-
-DROP TABLE IF EXISTS `visit_record`;
-CREATE TABLE IF NOT EXISTS `visit_record` (
-  `Visit_ID` int NOT NULL,
-  `Patient_ID` int DEFAULT NULL,
-  `Visit_Date` date DEFAULT NULL,
-  `Symptoms` text,
-  `Diagnosis` text,
-  PRIMARY KEY (`Visit_ID`),
-  KEY `Patient_ID` (`Patient_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+CREATE TABLE healthy_facility(
+    facility_ID INT (11) PRIMARY KEY AUTO_INCREMENT,
+    facility_name VARCHAR(100),
+    location_ID INT(11),
+    facility_type INT(11),
+    capacity INT(11),
+    contact_details VARCHAR (100),
+    date_added DATE,
+    facility_head VARCHAR (100),
+    FOREIGN KEY (location_ID)
+);
+CREATE TABLE interventions(
+    intervention_ID INT(11),
+    type VARCHAR(50),
+    location_ID INT(11),
+    start_date DATE,
+    end_date DATE,
+    outcome VARCHAR(50)
+    date_added DATE,
+    update_date DATE
+);
+CREATE TABLE malaria_cases(
+    case_ID INT(11),
+    patient_ID INT(11),
+    facility_ID INT(11),
+    date_of_diagnosis DATE,
+    type_of_malaria VARCHAR(50),
+    treatment_ID INT(11),
+    outcome_ID INT(11),
+    FOREIGN KEY (patient_ID, facility_ID, treatment_ID, outcomr_ID)
+);
+CREATE TABLE facility(
+    facility_type_ID INT(11),
+    Name VARCHAR(50),
+    description TEXT,
+    date_added DATE,
+    date_updated DATE
+);
+CREATE TABLE system_log(
+    log_ID INT(11),
+    user_ID INT(11),
+    activity TEXT,
+    temestamp DATETIME,
+    IP_address VARCHAR(100),
+    location VARCHAR(100)
+);
+    
